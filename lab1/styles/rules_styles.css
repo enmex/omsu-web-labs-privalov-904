@@ -1,0 +1,35 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+.container-rules {
+    min-width: 100vw;
+    min-height: 100vh;
+    display: block;
+    flex-direction: row;
+    justify-content: left;
+    align-content: left;
+    align-items: left;
+    background-color: #000 
+}
+
+.nav-rules {
+    display: block;
+    border: 2px solid rgb(255, 255, 255);
+    border-radius: 10%;
+    flex-direction: row;
+    min-height: auto;
+    padding: 1rem;
+}
+
+.nav-button-rules {
+    text-align: center;
+    padding: 1rem;
+    min-width: 2rem;
+    min-height: .5rem;
+    border-radius: 50%;
+    margin-top: .2rem;
+    color: #fff;
+    
+}

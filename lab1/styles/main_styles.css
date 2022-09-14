@@ -1,0 +1,34 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+.nav-main {
+    display: flex;
+    border: 2px solid rgb(255, 255, 255);
+    border-radius: 10%;
+    flex-direction: column;
+    min-height: auto;
+    padding: 1rem;
+}
+
+.nav-button-main {
+    text-align: center;
+    padding: 1rem;
+    min-width: 2rem;
+    min-height: .5rem;
+    border-radius: 50%;
+    margin-top: .2rem;
+    color: #fff;
+}
+
+.container-main {
+    min-width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    background-image: url(https://baza-v-karelii.ru/upload/iblock/c88/bs2encqbxr4i72q2k1wmhl0gld6dgocz.jpg);
+}

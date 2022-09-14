@@ -1,0 +1,52 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+.nav-container-field {
+    min-width: 100vw;
+    min-height: 100vh;
+    display: block;
+    flex-direction: row;
+    justify-content: left;
+    align-content: left;
+    align-items: left;
+    background-color: #000 
+}
+
+.field-container-field {
+    min-width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    align-content: center;
+    align-items: center;
+}
+
+.nav-field {
+    display: block;
+    border: 2px solid rgb(255, 255, 255);
+    border-radius: 10%;
+    flex-direction: row;
+    min-height: auto;
+    padding: 1rem;
+}
+
+.nav-button-field {
+    text-align: center;
+    padding: 1rem;
+    min-width: 2rem;
+    min-height: .5rem;
+    border-radius: 50%;
+    margin-top: .2rem;
+    color: #fff;
+    
+}
+
+.checks tr::nth-child(odd) td::nth-child(odd) {
+    color: orange
+}
+.checks tr::nth-child(even) td::nth-child(even) {
+    color: orange
+}
