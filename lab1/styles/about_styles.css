@@ -32,11 +32,43 @@
     color: #fff;
 }
 
+.section-container {
+    width: 100vw;
+    height: 200vh;
+    display: flex;
+    background-color: rgb(105, 105, 105);
+}
+
+.section-container .section {
+    width: 10vw;
+    height: 200vh;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    align-content: left;
+    text-align: left;
+    border: 2px solid black;
+}
+
+.section .button {
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+
+.section-container .text {
+    text-align: left;
+    font-size: 1.3rem;
+}
+
 footer {
     position: bottom;
     left: 0; bottom: 0;
     padding: 10px;
-    background: #39b54a;
+    background: #015d66;
     color: #fff;
     width: 100%;
 }
