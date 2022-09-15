@@ -5,19 +5,18 @@
 
 .container-rules {
     min-width: 100vw;
-    min-height: 100vh;
+    min-height: 5vh;
     display: block;
     flex-direction: row;
     justify-content: left;
     align-content: left;
     align-items: left;
-    background-color: #000 
+    background-color: rgb(50, 50, 50) 
 }
 
 .nav-rules {
     display: block;
     border: 2px solid rgb(255, 255, 255);
-    border-radius: 10%;
     flex-direction: row;
     min-height: auto;
     padding: 1rem;

@@ -5,13 +5,13 @@
 
 .nav-container-field {
     min-width: 100vw;
-    min-height: 100vh;
+    min-height: 5vh;
     display: block;
     flex-direction: row;
     justify-content: left;
     align-content: left;
     align-items: left;
-    background-color: #000 
+    background-color: rgb(50, 50, 50) 
 }
 
 .field-container-field {
@@ -27,7 +27,6 @@
 .nav-field {
     display: block;
     border: 2px solid rgb(255, 255, 255);
-    border-radius: 10%;
     flex-direction: row;
     min-height: auto;
     padding: 1rem;
@@ -41,12 +40,30 @@
     border-radius: 50%;
     margin-top: .2rem;
     color: #fff;
-    
 }
 
-.checks tr::nth-child(odd) td::nth-child(odd) {
-    color: orange
+.board {
+    border-spacing: 0;
+    border-collapse: collapse;
 }
-.checks tr::nth-child(even) td::nth-child(even) {
-    color: orange
+
+.board th {
+    padding: .5em;
+}
+
+.board td {
+    width: 5em;
+    height: 5em;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #000;
+    background-color: rgb(120, 0, 0);
+}
+
+.board tr:nth-child(odd) td:nth-child(odd) {
+    background-color: beige;
+}
+
+.board tr:nth-child(even) td:nth-child(even) {
+    background-color: beige;
 }
