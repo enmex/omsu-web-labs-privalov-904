@@ -32,3 +32,16 @@
     align-items: center;
     background-image: url(https://baza-v-karelii.ru/upload/iblock/c88/bs2encqbxr4i72q2k1wmhl0gld6dgocz.jpg);
 }
+
+footer {
+    position: bottom;
+    left: 0; bottom: 0;
+    padding: 10px;
+    background: #39b54a;
+    color: #fff;
+    width: 100%;
+}
+
+footer .copyright {
+    text-align: center;
+}

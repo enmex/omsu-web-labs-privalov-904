@@ -67,3 +67,16 @@
 .board tr:nth-child(even) td:nth-child(even) {
     background-color: beige;
 }
+
+footer {
+    position: bottom;
+    left: 0; bottom: 0;
+    padding: 10px;
+    background: #39b54a;
+    color: #fff;
+    width: 100%;
+}
+
+footer .copyright {
+    text-align: center;
+}
