@@ -8,6 +8,9 @@ body {
 }
 
 header {
+    width: 100%;
+    height: auto;
+    position: fixed;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -31,6 +34,7 @@ header:hover {
 nav {
     display: flex;
     position: fixed;
+    margin-top: 3em;
     border: 2px solid rgb(0, 0, 0);
     border-radius: 3%;
     flex-direction: column;
