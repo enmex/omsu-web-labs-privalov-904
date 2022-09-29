@@ -8,12 +8,14 @@
     <body>
         <header>Онлайн шашки</header>
         <nav>
-            <a class="button" href="index.html">Главная</a>
+            <a class="button" href="../index.html">Главная</a>
             <a class="button" href="about.html">Подробнее</a>
             <a class="button" href="field.html">Играть</a>
+            <button onclick="board.toDefaultState()">Начать</button>
+            <button onclick="board.toExample1State()">Пример 1</button>
+            <button onclick="board.toExample2State()">Пример 2</button>
         </nav> 
 
-        <script src="../js/board.js"></script>
         <div class="container">
             <table class="board">
                 <tbody>
@@ -30,95 +32,96 @@
                     </tr>
                     <tr>
                         <th>8</th>
-                        <td id="8a"></td>
-                        <td id="8b"><div class="black-piece"></div></td>
-                        <td id="8c"></td>
-                        <td id="8d"><div class="black-piece"></div></td>
-                        <td id="8e"></td>
-                        <td id="8f"><div class="black-piece"></div></td>
-                        <td id="8g"></td>
-                        <td id="8h"><div class="black-piece"></div></td>
+                        <td id="a8"><div></div></td>
+                        <td id="b8"><div></div></td>
+                        <td id="c8"><div></div></td>
+                        <td id="d8"><div></div></td>
+                        <td id="e8"><div></div></td>
+                        <td id="f8"><div></div></td>
+                        <td id="g8"><div></div></td>
+                        <td id="h8"><div></div></td>
                     </tr>
                     <tr>
                         <th>7</th>
-                        <td id="7a"><div class="black-piece"></div></td>
-                        <td id="7b"></td>
-                        <td id="7c"><div class="black-piece"></div></td>
-                        <td id="7d"></td>
-                        <td id="7e"><div class="black-piece"></div></td>
-                        <td id="7f"></td>
-                        <td id="7g"><div class="black-piece"></div></td>
-                        <td id="7h"></td>
+                        <td id="a7"><div></div></td>
+                        <td id="b7"><div></div></td>
+                        <td id="c7"><div></div></td>
+                        <td id="d7"><div></div></td>
+                        <td id="e7"><div></div></td>
+                        <td id="f7"><div></div></td>
+                        <td id="g7"><div></div></td>
+                        <td id="h7"><div></div></td>
                     </tr>
                     <tr>
                         <th>6</th>
-                        <td id="6a"></td>
-                        <td id="6b"><div class="black-piece"></div></td>
-                        <td id="6c"></td>
-                        <td id="6d"><div class="black-piece"></div></td>
-                        <td id="6e"></td>
-                        <td id="6f"><div class="black-piece"></div></td>
-                        <td id="6g"></td>
-                        <td id="6h"><div class="black-piece"></div></td>
+                        <td id="a6"><div></div></td>
+                        <td id="b6"><div></div></td>
+                        <td id="c6"><div></div></td>
+                        <td id="d6"><div></div></td>
+                        <td id="e6"><div></div></td>
+                        <td id="f6"><div></div></td>
+                        <td id="g6"><div></div></td>
+                        <td id="h6"><div></div></td>
                     </tr>
                     <tr>
                         <th>5</th>
-                        <td id="5a"></td>
-                        <td id="5b"></td>
-                        <td id="5c"></td>
-                        <td id="5d"></td>
-                        <td id="5e"></td>
-                        <td id="5f"></td>
-                        <td id="5g"></td>
-                        <td id="5h"></td>
+                        <td id="a5"><div></div></td>
+                        <td id="b5"><div></div></td>
+                        <td id="c5"><div></div></td>
+                        <td id="d5"><div></div></td>
+                        <td id="e5"><div></div></td>
+                        <td id="f5"><div></div></td>
+                        <td id="g5"><div></div></td>
+                        <td id="h5"><div></div></td>
                     </tr>
                     <tr>
                         <th>4</th>
-                        <td id="4a"></td>
-                        <td id="4b"></td>
-                        <td id="4c"></td>
-                        <td id="4d"></td>
-                        <td id="4e"></td>
-                        <td id="4f"></td>
-                        <td id="4g"></td>
-                        <td id="4h"></td>
+                        <td id="a4"><div></div></td>
+                        <td id="b4"><div></div></td>
+                        <td id="c4"><div></div></td>
+                        <td id="d4"><div></div></td>
+                        <td id="e4"><div></div></td>
+                        <td id="f4"><div></div></td>
+                        <td id="g4"><div></div></td>
+                        <td id="h4"><div></div></td>
                     </tr>
                     <tr>
                         <th>3</th>
-                        <td id="3a"><div class="white-piece"></div></td>
-                        <td id="3b"></td>
-                        <td id="3c"><div class="white-piece"></div></td>
-                        <td id="3d"></td>
-                        <td id="3e"><div class="white-piece"></div></td>
-                        <td id="3f"></td>
-                        <td id="3g"><div class="white-piece"></div></td>
-                        <td id="3h"></td>
+                        <td id="a3"><div></div></td>
+                        <td id="b3"><div></div></td>
+                        <td id="c3"><div></div></td>
+                        <td id="d3"><div></div></td>
+                        <td id="e3"><div></div></td>
+                        <td id="f3"><div></div></td>
+                        <td id="g3"><div></div></td>
+                        <td id="h3"><div></div></td>
                     </tr>
                     <tr>
                         <th>2</th>
-                        <td id="2a"></td>
-                        <td id="2b"><div class="white-piece"></div></td>
-                        <td id="2c"></td>
-                        <td id="2d"><div class="white-piece"></div></td>
-                        <td id="2e"></td>
-                        <td id="2f"><div class="white-piece"></div></td>
-                        <td id="2g"></td>
-                        <td id="2h"><div class="white-piece"></div></td>
+                        <td id="a2"><div></div></td>
+                        <td id="b2"><div></div></td>
+                        <td id="c2"><div></div></td>
+                        <td id="d2"><div></div></td>
+                        <td id="e2"><div></div></td>
+                        <td id="f2"><div></div></td>
+                        <td id="g2"><div></div></td>
+                        <td id="h2"><div></div></td>
                     </tr>
                     <tr>
                         <th>1</th>
-                        <td id="1a"><div class="white-piece"></div></td>
-                        <td id="1b"></td>
-                        <td id="1c"><div class="white-piece"></div></td>
-                        <td id="1d"></td>
-                        <td id="1e"><div class="white-piece"></div></td>
-                        <td id="1f"></td>
-                        <td id="1g"><div class="white-piece"></div></td>
-                        <td id="1h"></td>
+                        <td id="a1"><div></div></td>
+                        <td id="b1"><div></div></td>
+                        <td id="c1"><div></div></td>
+                        <td id="d1"><div></div></td>
+                        <td id="e1"><div></div></td>
+                        <td id="f1"><div></div></td>
+                        <td id="g1"><div></div></td>
+                        <td id="h1"><div></div></td>
                     </tr>
                 </tbody>
             </table>
         </div>
+        <script type="text/javascript" src="../js/board.js"></script>
         <footer class="footer">
             <div class="copyright">
                 &copy; Copyright 2022. All rights reserved.
