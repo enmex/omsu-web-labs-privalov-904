@@ -11,12 +11,14 @@
             <a class="button" href="../index.html">Главная</a>
             <a class="button" href="about.html">Подробнее</a>
             <a class="button" href="field.html">Играть</a>
-            <button onclick="board.toDefaultState()">Начать</button>
-            <button onclick="board.toExample1State()">Пример 1</button>
-            <button onclick="board.toExample2State()">Пример 2</button>
         </nav> 
 
         <div class="container">
+            <div class="game-buttons-container">
+                <button onclick="board.toDefaultState()">Начать</button>
+                <button onclick="board.toFirstExampleState()">Пример 1</button>
+                <button onclick="board.toSecondExampleState()">Пример 2</button>
+            </div>
             <table class="board">
                 <tbody>
                     <tr>

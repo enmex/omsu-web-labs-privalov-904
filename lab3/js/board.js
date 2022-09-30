@@ -51,7 +51,7 @@ const defaultPiecesLocations = [
     { location: {x: 7, y: 5}, type: PieceType.BLACK },
 ]
 
-const example1PiecesLocations = [
+const firstExamplePiecesLocations = [
     { location: {x: 5, y: 3}, type: PieceType.WHITE },
     { location: {x: 7, y: 3}, type: PieceType.WHITE },
     { location: {x: 2, y: 0}, type: PieceType.BLACK_LADY },
@@ -62,7 +62,7 @@ const example1PiecesLocations = [
     { location: {x: 7, y: 5}, type: PieceType.BLACK },
 ]
 
-const example2PiecesLocations = [
+const secondExamplePiecesLocations = [
     { location: {x: 4, y: 2}, type: PieceType.WHITE },
     { location: {x: 3, y: 3}, type: PieceType.BLACK },
     { location: {x: 5, y: 3}, type: PieceType.BLACK },
@@ -101,15 +101,17 @@ function getPieceByPointDefaultBoard(point) {
     return defaultPiecesLocations.find(dpl => pointsEqual(dpl.location, point))?.type ?? null;
 }
 
-function getPieceByPointExample1Board(point) {
-    return example1PiecesLocations.find(dpl => pointsEqual(dpl.location, point))?.type ?? null;
+function getPieceByPointFirstExampleBoard(point) {
+    return firstExamplePiecesLocations.find(dpl => pointsEqual(dpl.location, point))?.type ?? null;
 }
 
-function getPieceByPointExample2Board(point) {
-    return example2PiecesLocations.find(dpl => pointsEqual(dpl.location, point))?.type ?? null;
+function getPieceByPointSecondExampleBoard(point) {
+    return secondExamplePiecesLocations.find(dpl => pointsEqual(dpl.location, point))?.type ?? null;
 }
 
 class Board {
+    hintMode;
+
     cells = new Array(BOARD_SIZE);
     activeCell = {
         location: Point,
@@ -118,6 +120,8 @@ class Board {
     } | null;
 
     constructor() {
+        this.hintMode = false;
+
         for (let i = 0; i < this.cells.length; i++) {
             this.cells[i] = new Array(BOARD_SIZE);
             for (let j = 0; j < this.cells[i].length; j++) {
@@ -164,7 +168,15 @@ class Board {
         let location = cell.location;
 
         directions.forEach(direction => {
-            if (this.isEmptyCell(location.x + direction.x, location.y + direction.y)) {
+            if (this.isOpponent(cell, direction) && this.isEmpty(location.x + 2 * direction.x, location.y + 2 * direction.y)) {
+                availableForMove.push({
+                    location: {
+                        x: location.x + 2 * direction.x, 
+                        y: location.y + 2 * direction.y
+                    },
+                    type: MoveType.ATTACK
+                });
+            } else if (this.isEmpty(location.x + direction.x, location.y + direction.y)) {
                 availableForMove.push({
                     location: {
                         x: location.x + direction.x,
@@ -175,13 +187,17 @@ class Board {
             }
         });
 
+        if (availableForMove.find(el => el.type === MoveType.ATTACK)) {
+            return availableForMove.filter(el => el.type === MoveType.ATTACK);
+        }
+
         return availableForMove;
     }
 
     handleBoardEvent(selectedElement) {
         if (this.activeCell && pointsEqual(idToPoint(selectedElement.id), this.activeCell.location)) {
             this.toNormalMode();
-        } else {
+        } else if (!this.activeCell){
             if (this.activeCell) {
                 endHighlight(this.activeCell.location);
                 this.endHighlightAvailableCells();
@@ -210,6 +226,18 @@ class Board {
         return null;
     }
 
+    findByLocation(location) {
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            for (let j = 0; j < BOARD_SIZE; j++) {
+                if (pointsEqual(this.cells[i][j].location, location)) {
+                    return this.cells[i][j];
+                }
+            }
+        }
+
+        return null;
+    }
+
     highlightAvailableCells() {
         this.activeCell.availableForMove.forEach(el => highlightWithColor(el.location, el.type));
     }
@@ -219,6 +247,8 @@ class Board {
     }
 
     toNormalMode() {
+        this.hintMode = false;
+
         if (this.activeCell) {
             endHighlight(this.activeCell.location);
             this.endHighlightAvailableCells();
@@ -230,8 +260,58 @@ class Board {
         return x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE;
     }
 
-    isEmptyCell(x, y) {
+    isEmpty(x, y) {
         return this.inBoard(x, y) && this.cells[y][x].piece == null;
+    }
+
+    isOpponent(refCell, targetDirection) {
+        let location = {
+            x: refCell.location.x + targetDirection.x,
+            y: refCell.location.y + targetDirection.y
+        }
+
+        let targetCell = this.findByLocation(location);
+
+        return this.inBoard(location.x, location.y) && (targetCell.piece && refCell.piece.side !== targetCell.piece.side);
+    }
+
+    toDefaultState() {
+        this.toNormalMode();
+
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            for (let j = 0; j < BOARD_SIZE; j++) {
+                this.cells[i][j].piece = getPieceByPointDefaultBoard(this.cells[i][j].location);
+            }
+        }
+
+        this.updateAvailableForMove();
+        this.updateAllCellsView();
+    }
+
+    toFirstExampleState() {
+        this.toNormalMode();
+
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            for (let j = 0; j < BOARD_SIZE; j++) {
+                this.cells[i][j].piece = getPieceByPointFirstExampleBoard(this.cells[i][j].location);
+            }
+        }
+
+        this.updateAvailableForMove();
+        this.updateAllCellsView();
+    }
+
+    toSecondExampleState() {
+        this.toNormalMode();
+
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            for (let j = 0; j < BOARD_SIZE; j++) {
+                this.cells[i][j].piece = getPieceByPointSecondExampleBoard(this.cells[i][j].location);
+            }
+        }
+
+        this.updateAvailableForMove();
+        this.updateAllCellsView();
     }
 
     updateAllCellsView() {
