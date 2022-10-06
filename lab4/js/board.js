@@ -161,6 +161,8 @@ class Board {
         this.updateAvailable();
         this.updateAllCellsView();
         updateTurnInfo(this.isWhiteTurn);
+
+        clearGameRecord();
     }
 
     movePiece(emptyCell) {
@@ -264,8 +266,8 @@ class Board {
     }
 
     selectedOwnTeamPiece(cell) {
-        return cell.piece && this.isWhiteTurn && cell.piece.side === PieceType.WHITE.side ||
-         !this.isWhiteTurn && cell.piece.side === PieceType.BLACK.side;
+        return cell.piece && (this.isWhiteTurn && cell.piece.side === PieceType.WHITE.side ||
+         !this.isWhiteTurn && cell.piece.side === PieceType.BLACK.side);
     }
 
     handleBoardEvent(selectedElement) {
@@ -509,11 +511,17 @@ function endTurn() {
 
         updateTurnInfo(board.isWhiteTurn);
 
-        if (board.gameRecording.length == 2) {
+        if (board.gameRecording.length === 2) {
             let text = board.gameRecording[board.gameRecording.length - 2]
                      + " " + board.gameRecording[board.gameRecording.length - 1];
 
-            document.getElementById("game-record").textContent += text + "\n";
+            document.getElementById("game-record").value += (text + "\n");
+
+            board.gameRecording = [];
         }
     }
+}
+
+function clearGameRecord() {
+    document.getElementById("game-record").value = "";
 }
