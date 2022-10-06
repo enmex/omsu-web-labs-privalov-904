@@ -73,7 +73,7 @@ const firstExamplePiecesLocations = [
 const secondExamplePiecesLocations = [
     { location: {x: 4, y: 2}, type: PieceType.WHITE },
     { location: {x: 3, y: 3}, type: PieceType.BLACK },
-    { location: {x: 5, y: 3}, type: PieceType.BLACK },
+    { location: {x: 3, y: 5}, type: PieceType.BLACK },
     { location: {x: 1, y: 1}, type: PieceType.WHITE },
 ];
 
@@ -122,12 +122,14 @@ class Board {
     turnMode;
     isWhiteTurn;
     turnCompleted;
+    mustAttack;
 
     cells = new Array(BOARD_SIZE);
     gameRecording = [];
     activeCell = Cell | null;
     currentTurn = {
         start: Point | null,
+        finish: Point | null,
         deletedPieces: [],
         pieceType: PieceType
     };
@@ -156,13 +158,12 @@ class Board {
             }
         }
 
-        this.updateAvailableForMove();
+        this.updateAvailable();
         this.updateAllCellsView();
         updateTurnInfo(this.isWhiteTurn);
     }
 
     movePiece(emptyCell) {
-        endHighlight(this.activeCell.location);
         this.endHighlightAvailableCells();
 
         emptyCell.piece = this.activeCell.piece;
@@ -175,30 +176,38 @@ class Board {
         } else if (this.activeCell.piece === PieceType.BLACK && this.activeCell.location.y === 0) {
             this.activeCell.piece = PieceType.BLACK_LADY;
         }
-
-        this.highlightAvailableCells();
     }
 
-    updateAvailableForMove() {
+    updateAvailable() {
+        this.mustAttack = false;
+
         for (let i = 0; i < BOARD_SIZE; i++) {
             for (let j = 0; j < BOARD_SIZE; j++) {
-                this.setAvailableForMove(this.cells[i][j]);
+                let cell = this.cells[i][j];
+
+                if (this.isWhiteTurn && cell.piece?.side === PieceType.WHITE.side || 
+                    !this.isWhiteTurn && cell.piece?.side === PieceType.BLACK.side) {
+                    this.setAvailableForAttack(cell);
+
+                    if (cell.availableForMove.length > 0) {
+                        this.mustAttack = true;
+                    }
+                }
+            }
+        }
+
+        if (!this.mustAttack && !this.turnCompleted) {
+            for (let i = 0; i< BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    this.setAvailableForMovement(this.cells[i][j]);
+                }
             }
         }
     }
 
-    setAvailableForMove(cell) {
+    setAvailableForAttack(cell) {
+        const directions = [Direction.UP_LEFT, Direction.UP_RIGHT, Direction.DOWN_LEFT, Direction.DOWN_RIGHT];
         cell.availableForMove = [];
-        let directions = [];
-
-        if (cell.piece === PieceType.WHITE && this.isWhiteTurn) {
-            directions.push(Direction.UP_LEFT, Direction.UP_RIGHT);
-        } else if (cell.piece === PieceType.BLACK && !this.isWhiteTurn) {
-            directions.push(Direction.DOWN_LEFT, Direction.DOWN_RIGHT);
-        } else if (cell.piece === PieceType.WHITE_LADY && this.isWhiteTurn ||
-                   cell.piece === PieceType.BLACK_LADY && !this.isWhiteTurn) { 
-            directions.push(Direction.DOWN_LEFT, Direction.DOWN_RIGHT, Direction.UP_LEFT, Direction.UP_RIGHT);
-        }
 
         let location = cell.location;
 
@@ -211,38 +220,81 @@ class Board {
                     },
                     type: MoveType.ATTACK
                 });
-            } else if (this.isEmpty(location.x + direction.x, location.y + direction.y)) {
-                cell.availableForMove.push({
-                    location: {
-                        x: location.x + direction.x,
-                        y: location.y + direction.y
-                    },
-                    type: MoveType.MOVEMENT
-                });
             }
         });
+    }
 
-        if (cell.availableForMove.find(el => el.type === MoveType.ATTACK)){
-            cell.availableForMove = cell.availableForMove.filter(el => el.type === MoveType.ATTACK)
+    setAvailableForMovement(cell) {
+        let directions = [];
+
+        if (cell.piece === PieceType.WHITE) {
+            directions.push(Direction.UP_LEFT, Direction.UP_RIGHT);
+        } else if (cell.piece === PieceType.BLACK) {
+            directions.push(Direction.DOWN_LEFT, Direction.DOWN_RIGHT);
+        } else if (cell.piece === PieceType.WHITE_LADY ||
+                   cell.piece === PieceType.BLACK_LADY) { 
+            directions.push(Direction.DOWN_LEFT, Direction.DOWN_RIGHT, Direction.UP_LEFT, Direction.UP_RIGHT);
         }
+
+        directions.forEach(direction => {
+            let point = {
+                x: cell.location.x + direction.x,
+                y: cell.location.y + direction.y
+            }
+
+            if (this.isEmpty(point.x, point.y)) {
+                cell.availableForMove.push({
+                    location: point,
+                    type: MoveType.MOVEMENT
+                })
+            }
+        })
+    }
+
+    playerMustAttack() {
+        for (cell of cells) {
+            let boardCell = this.findById(cell.id);
+
+            if (boardCell.availableForMove.find(el => el.type === MoveType.ATTACK)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    selectedOwnTeamPiece(cell) {
+        return cell.piece && this.isWhiteTurn && cell.piece.side === PieceType.WHITE.side ||
+         !this.isWhiteTurn && cell.piece.side === PieceType.BLACK.side;
     }
 
     handleBoardEvent(selectedElement) {
-        if (this.turnMode) {
-            let selectedCell = this.findById(selectedElement.id);
+        let selectedCell = this.findById(selectedElement.id);
 
-            if (pointsEqual(selectedCell.location, this.activeCell.location)) {
-                this.toNormalMode(selectedElement);
-            } else if (this.activeCell.availableForMove.find(el => pointsEqual(el.location, selectedCell.location))) {
-                this.doTurn(selectedCell);
+        if (this.turnMode && this.activeCell.availableForMove.find(el => pointsEqual(el.location, selectedCell.location))) {
+            this.doTurn(selectedCell);
+
+            if (this.currentTurn.deletedPieces.length > 0) {
+                this.setAvailableForAttack(selectedCell);
             }
-        } else {
+
+            this.turnCompleted = selectedCell.availableForMove.length > 0 ? false : true;
+
+            if (!this.turnCompleted) {
+                this.highlightAvailableCells();
+            }
+
+            this.updateAllCellsView();
+        } else if (this.selectedOwnTeamPiece(selectedCell) && selectedCell.availableForMove.length > 0) {
             this.toTurnMode(selectedElement);
         }
     }
 
     doTurn(selectedCell) {
-        this.currentTurn.start = this.activeCell.location;
+        if (!this.currentTurn.start) {
+            this.currentTurn.start = this.activeCell.location;
+        }
+        this.currentTurn.finish = selectedCell.location;
         this.currentTurn.pieceType = this.activeCell.piece;
 
         let turnType = this.activeCell.availableForMove.find(el => pointsEqual(el.location, selectedCell.location)).type;
@@ -263,26 +315,29 @@ class Board {
 
         this.movePiece(selectedCell);
 
-        this.turnCompleted = true;
-
-        this.updateAvailableForMove();
-        this.updateAllCellsView();
+        selectedCell.availableForMove = [];
     }
 
     cancelTurn() {
-        if (this.activeCell.piece && this.turnCompleted) {
+        if (this.turnCompleted) {
             this.turnCompleted = false;
+            let startCell = this.findByLocation(this.currentTurn.start);
+            let finishCell = this.findByLocation(this.currentTurn.finish);
 
-            this.endHighlightAvailableCells();
-            this.movePiece(this.findByLocation(this.currentTurn.start));
+            if (this.activeCell) {
+                this.endHighlightAvailableCells();
+            }
+
+            this.activeCell = finishCell;
+
+            this.movePiece(startCell);
 
             this.currentTurn.deletedPieces.forEach(piece => this.findByLocation(piece.location).piece = piece.type);
 
-            this.activeCell = this.findByLocation(this.currentTurn.start);
+            this.activeCell = startCell;
+            this.turnMode = true;
 
-            this.activeCell.piece = this.currentTurn.pieceType;
-
-            this.updateAvailableForMove();
+            this.updateAvailable();
 
             this.updateAllCellsView();
             this.highlightAvailableCells();
@@ -318,6 +373,9 @@ class Board {
     }
 
     toTurnMode(selectedElement) {
+        if (this.activeCell) {
+            this.endHighlightAvailableCells();
+        }
         selectedElement.style.backgroundColor = "yellow";
 
         this.turnMode = true;
@@ -358,7 +416,7 @@ class Board {
             }
         }
 
-        this.updateAvailableForMove();
+        this.updateAvailable();
         this.updateAllCellsView();
     }
 
@@ -371,7 +429,7 @@ class Board {
             }
         }
 
-        this.updateAvailableForMove();
+        this.updateAvailable();
         this.updateAllCellsView();
     }
 
@@ -384,7 +442,7 @@ class Board {
             }
         }
 
-        this.updateAvailableForMove();
+        this.updateAvailable();
         this.updateAllCellsView();
     }
 
@@ -424,34 +482,38 @@ function updateTurnInfo(isWhiteTurn) {
 let board = new Board();
 
 function toBoardId(point) {
-    return boardLetters[point.x] + point.y;
+    return boardLetters[point.x] + (point.y + 1);
 }
 
 function endTurn() {
     if (board.turnMode && board.turnCompleted) {
+        board.turnCompleted = false;
+
+        let record = toBoardId(board.currentTurn.start)
+            + (board.currentTurn.deletedPieces.length > 0 ? ":" : "-")
+            + toBoardId(board.activeCell.location);
+
+        board.gameRecording.push(record); 
+
         let element = findElementByPoint(board.activeCell.location);
 
         board.toNormalMode(element);
         board.changeTurn();
-        board.updateAvailableForMove();
-
-        let record = toBoardId(board.currentTurn.start)
-             + (board.currentTurn.deletedPieces.length > 0 ? ":" : "-")
-             + toBoardId(board.activeCell.location);
-        
-        board.gameRecording.push(record); 
+        board.updateAvailable();
+        board.updateAllCellsView();
 
         board.currentTurn = {
             start: null,
             deletedPieces: []
-        };
-        
-        board.gameRecording.push({
-
-        }); 
-
-        console.log(board.gameRecording);
+        }; 
 
         updateTurnInfo(board.isWhiteTurn);
+
+        if (board.gameRecording.length == 2) {
+            let text = board.gameRecording[board.gameRecording.length - 2]
+                     + " " + board.gameRecording[board.gameRecording.length - 1];
+
+            document.getElementById("game-record").textContent += text + "\n";
+        }
     }
 }
