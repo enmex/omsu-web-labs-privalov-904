@@ -253,18 +253,6 @@ class Board {
         })
     }
 
-    playerMustAttack() {
-        for (cell of cells) {
-            let boardCell = this.findById(cell.id);
-
-            if (boardCell.availableForMove.find(el => el.type === MoveType.ATTACK)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     selectedOwnTeamPiece(cell) {
         return cell.piece && (this.isWhiteTurn && cell.piece.side === PieceType.WHITE.side ||
          !this.isWhiteTurn && cell.piece.side === PieceType.BLACK.side);

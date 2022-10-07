@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Игра в шашки</title>
+        <link rel="stylesheet" href="../css/field_styles.css"/>
+    </head>
+    <body>
+        <header>Онлайн шашки</header>
+        <nav>
+            <a class="button" href="../index.html">Главная</a>
+            <a class="button" href="about.html">Подробнее</a>
+            <a class="button" href="field.html">Играть</a>
+        </nav> 
+
+        <div class="text-container"><p id="turn-info"></p></div>
+
+        <div class="game-buttons-container">
+            <button onclick="board.toDefaultState()">Начать</button>
+            <button onclick="board.toFirstExampleState()">Пример 1</button>
+            <button onclick="board.toSecondExampleState()">Пример 2</button>
+        </div>
+
+        <div class="container">
+            <div class="container-left"></div>
+            <table class="board">
+                <tbody>
+                    <tr>
+                        <th></th>
+                        <th>a</th>
+                        <th>b</th>
+                        <th>c</th>
+                        <th>d</th>
+                        <th>e</th>
+                        <th>f</th>
+                        <th>g</th>
+                        <th>h</th>
+                    </tr>
+                    <tr>
+                        <th>8</th>
+                        <td id="07"><div></div></td>
+                        <td id="17"><div></div></td>
+                        <td id="27"><div></div></td>
+                        <td id="37"><div></div></td>
+                        <td id="47"><div></div></td>
+                        <td id="57"><div></div></td>
+                        <td id="67"><div></div></td>
+                        <td id="77"><div></div></td>
+                    </tr>
+                    <tr>
+                        <th>7</th>
+                        <td id="06"><div></div></td>
+                        <td id="16"><div></div></td>
+                        <td id="26"><div></div></td>
+                        <td id="36"><div></div></td>
+                        <td id="46"><div></div></td>
+                        <td id="56"><div></div></td>
+                        <td id="66"><div></div></td>
+                        <td id="76"><div></div></td>
+                    </tr>
+                    <tr>
+                        <th>6</th>
+                        <td id="05"><div></div></td>
+                        <td id="15"><div></div></td>
+                        <td id="25"><div></div></td>
+                        <td id="35"><div></div></td>
+                        <td id="45"><div></div></td>
+                        <td id="55"><div></div></td>
+                        <td id="65"><div></div></td>
+                        <td id="75"><div></div></td>
+                    </tr>
+                    <tr>
+                        <th>5</th>
+                        <td id="04"><div></div></td>
+                        <td id="14"><div></div></td>
+                        <td id="24"><div></div></td>
+                        <td id="34"><div></div></td>
+                        <td id="44"><div></div></td>
+                        <td id="54"><div></div></td>
+                        <td id="64"><div></div></td>
+                        <td id="74"><div></div></td>
+                    </tr>
+                    <tr>
+                        <th>4</th>
+                        <td id="03"><div></div></td>
+                        <td id="13"><div></div></td>
+                        <td id="23"><div></div></td>
+                        <td id="33"><div></div></td>
+                        <td id="43"><div></div></td>
+                        <td id="53"><div></div></td>
+                        <td id="63"><div></div></td>
+                        <td id="73"><div></div></td>
+                    </tr>
+                    <tr>
+                        <th>3</th>
+                        <td id="02"><div></div></td>
+                        <td id="12"><div></div></td>
+                        <td id="22"><div></div></td>
+                        <td id="32"><div></div></td>
+                        <td id="42"><div></div></td>
+                        <td id="52"><div></div></td>
+                        <td id="62"><div></div></td>
+                        <td id="72"><div></div></td>
+                    </tr>
+                    <tr>
+                        <th>2</th>
+                        <td id="01"><div></div></td>
+                        <td id="11"><div></div></td>
+                        <td id="21"><div></div></td>
+                        <td id="31"><div></div></td>
+                        <td id="41"><div></div></td>
+                        <td id="51"><div></div></td>
+                        <td id="61"><div></div></td>
+                        <td id="71"><div></div></td>
+                    </tr>
+                    <tr>
+                        <th>1</th>
+                        <td id="00"><div></div></td>
+                        <td id="10"><div></div></td>
+                        <td id="20"><div></div></td>
+                        <td id="30"><div></div></td>
+                        <td id="40"><div></div></td>
+                        <td id="50"><div></div></td>
+                        <td id="60"><div></div></td>
+                        <td id="70"><div></div></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="game-recording-container">
+                <p>Запись</p>
+                <textarea id="game-record"></textarea>
+                <button onclick="showPiecesPlacement()">Показать</button>
+                <p id="record-error"></p>
+            </div>
+        </div>
+
+        <div class="button-end-container">
+            <button onclick="endTurn()">Завершить ход</button>
+            <button onclick="board.cancelTurn()">Отменить ход</button>
+        </div>
+
+        <script type="text/javascript" src="../js/board.js"></script>
+        <footer class="footer">
+            <div class="copyright">
+                &copy; Copyright 2022. All rights reserved.
+                Контактная информация:
+                <ul>
+                    <li>+79963962553</li>
+                    <li>privalovmihail2@gmail.com</li>
+                </ul>
+                Привалов Михаил Андреевич
+            </div>
+        </footer>
+    </body>
+</html>
