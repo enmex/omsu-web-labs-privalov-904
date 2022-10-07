@@ -180,15 +180,27 @@ class Board {
         }
     }
 
+    isWhitePiece(cell) {
+        return cell.piece?.side === PieceType.WHITE.side;
+    }
+
+    isBlackPiece(cell) {
+        return cell.piece?.side === PieceType.BLACK.side;
+    }
+
+    isLadyPiece(cell) {
+        return cell.piece === PieceType.WHITE_LADY || cell.piece === PieceType.BLACK_LADY;
+    }
+
     updateAvailable() {
         this.mustAttack = false;
 
         for (let i = 0; i < BOARD_SIZE; i++) {
             for (let j = 0; j < BOARD_SIZE; j++) {
                 let cell = this.cells[i][j];
+                cell.availableForMove = [];
 
-                if (this.isWhiteTurn && cell.piece?.side === PieceType.WHITE.side || 
-                    !this.isWhiteTurn && cell.piece?.side === PieceType.BLACK.side) {
+                if (this.isWhiteTurn && this.isWhitePiece(cell) || !this.isWhiteTurn && this.isBlackPiece(cell)) {
                     this.setAvailableForAttack(cell);
 
                     if (cell.availableForMove.length > 0) {
@@ -198,10 +210,14 @@ class Board {
             }
         }
 
-        if (!this.mustAttack && !this.turnCompleted) {
-            for (let i = 0; i< BOARD_SIZE; i++) {
-                for (let j = 0; j < BOARD_SIZE; j++) {
-                    this.setAvailableForMovement(this.cells[i][j]);
+        for (let i = 0; i< BOARD_SIZE; i++) {
+            for (let j = 0; j < BOARD_SIZE; j++) {
+                let cell = this.cells[i][j];
+
+                if (!this.mustAttack &&
+                     (this.isWhiteTurn && this.isWhitePiece(cell) || 
+                     !this.isWhiteTurn && this.isBlackPiece(cell))) {
+                    this.setAvailableForMovement(cell);
                 }
             }
         }
@@ -209,21 +225,45 @@ class Board {
 
     setAvailableForAttack(cell) {
         const directions = [Direction.UP_LEFT, Direction.UP_RIGHT, Direction.DOWN_LEFT, Direction.DOWN_RIGHT];
-        cell.availableForMove = [];
 
         let location = cell.location;
 
-        directions.forEach(direction => {
-            if (this.isOpponent(cell, direction) && this.isEmpty(location.x + 2 * direction.x, location.y + 2 * direction.y)) {
-                cell.availableForMove.push({
-                    location: {
-                        x: location.x + 2 * direction.x, 
-                        y: location.y + 2 * direction.y
-                    },
-                    type: MoveType.ATTACK
-                });
-            }
-        });
+        if (this.isLadyPiece(cell)) {
+            directions.forEach(direction => {
+                let offset = {
+                    x: direction.x,
+                    y: direction.y
+                };
+
+                while (this.inBoard(cell.location.x + offset.x, cell.location.y + offset.y) && !this.isOpponent(cell, offset)) {
+                    offset.x += direction.x;
+                    offset.y += direction.y;
+                }
+
+                if (this.isOpponent(cell, offset) &&
+                     this.isEmpty(cell.location.x + offset.x + direction.x, cell.location.y + offset.y + direction.y)) {
+                    cell.availableForMove.push({
+                        location: {
+                            x: cell.location.x + offset.x + direction.x,
+                            y: cell.location.y + offset.y + direction.y
+                        },
+                        type: MoveType.ATTACK
+                    });
+                }
+            });
+        } else {
+            directions.forEach(direction => {
+                if (this.isOpponent(cell, direction) && this.isEmpty(location.x + 2 * direction.x, location.y + 2 * direction.y)) {
+                    cell.availableForMove.push({
+                        location: {
+                            x: location.x + 2 * direction.x, 
+                            y: location.y + 2 * direction.y
+                        },
+                        type: MoveType.ATTACK
+                    });
+                }
+            });
+        }
     }
 
     setAvailableForMovement(cell) {
@@ -233,24 +273,44 @@ class Board {
             directions.push(Direction.UP_LEFT, Direction.UP_RIGHT);
         } else if (cell.piece === PieceType.BLACK) {
             directions.push(Direction.DOWN_LEFT, Direction.DOWN_RIGHT);
-        } else if (cell.piece === PieceType.WHITE_LADY ||
-                   cell.piece === PieceType.BLACK_LADY) { 
+        } else if (this.isLadyPiece(cell)) { 
             directions.push(Direction.DOWN_LEFT, Direction.DOWN_RIGHT, Direction.UP_LEFT, Direction.UP_RIGHT);
         }
 
-        directions.forEach(direction => {
-            let point = {
-                x: cell.location.x + direction.x,
-                y: cell.location.y + direction.y
-            }
+        if (this.isLadyPiece(cell)) {
+            directions.forEach(direction => {
+                let offset = {
+                    x: direction.x,
+                    y: direction.y
+                };
 
-            if (this.isEmpty(point.x, point.y)) {
-                cell.availableForMove.push({
-                    location: point,
-                    type: MoveType.MOVEMENT
-                })
-            }
-        })
+                while (this.isEmpty(cell.location.x + offset.x, cell.location.y + offset.y)) {
+                    cell.availableForMove.push({
+                        location: {
+                            x: cell.location.x + offset.x,
+                            y: cell.location.y + offset.y
+                        },
+                        type: MoveType.MOVEMENT
+                    });
+                    offset.x += direction.x;
+                    offset.y += direction.y;
+                }
+            });
+        } else {
+            directions.forEach(direction => {
+                let point = {
+                    x: cell.location.x + direction.x,
+                    y: cell.location.y + direction.y
+                };
+
+                if (this.isEmpty(point.x, point.y)) {
+                    cell.availableForMove.push({
+                        location: point,
+                        type: MoveType.MOVEMENT
+                    })
+                }
+            });
+        }
     }
 
     selectedOwnTeamPiece(cell) {
@@ -290,9 +350,11 @@ class Board {
         let turnType = this.activeCell.availableForMove.find(el => pointsEqual(el.location, selectedCell.location)).type;
 
         if (turnType === MoveType.ATTACK) {
+            let enemyDirection = this.getDirection(selectedCell);
+
             let enemyLocation = {
-                x: (this.activeCell.location.x + selectedCell.location.x) / 2,
-                y: (this.activeCell.location.y + selectedCell.location.y) / 2
+                x: selectedCell.location.x - enemyDirection.x,
+                y: selectedCell.location.y - enemyDirection.y
             };
 
             this.currentTurn.deletedPieces.push({
@@ -306,6 +368,16 @@ class Board {
         this.movePiece(selectedCell);
 
         selectedCell.availableForMove = [];
+    }
+
+    getDirection(selectedCell) {
+        let x = selectedCell.location.x > this.activeCell.location.x ? 1 : -1;
+        let y = selectedCell.location.y > this.activeCell.location.y ? 1 : -1;
+
+        return {
+            x: x,
+            y: y
+        };
     }
 
     cancelTurn() {
