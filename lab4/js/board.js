@@ -403,6 +403,12 @@ class Board {
 
             this.updateAllCellsView();
             this.highlightAvailableCells();
+
+            this.currentTurn = {
+                start: null,
+                finish: null,
+                deletedPieces: []
+            };
         }
     }
 
