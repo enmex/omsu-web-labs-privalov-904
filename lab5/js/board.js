@@ -129,8 +129,7 @@ class Board {
     activeCell = Cell | null;
     currentTurn = {
         start: Point | null,
-        finish: Point | null,
-        deletedPieces: [],
+        visited: [],
         pieceType: PieceType
     };
 
@@ -324,7 +323,7 @@ class Board {
         if (this.turnMode && this.activeCell.availableForMove.find(el => pointsEqual(el.location, selectedCell.location))) {
             this.doTurn(selectedCell);
 
-            if (this.currentTurn.deletedPieces.length > 0) {
+            if (this.currentTurn.visited.find(visitedCell => visitedCell.takenEnemy)) {
                 this.setAvailableForAttack(selectedCell);
             }
 
@@ -343,9 +342,14 @@ class Board {
     doTurn(selectedCell) {
         if (!this.currentTurn.start) {
             this.currentTurn.start = this.activeCell.location;
+            this.currentTurn.visited = [];
         }
-        this.currentTurn.finish = selectedCell.location;
         this.currentTurn.pieceType = this.activeCell.piece;
+
+        let visitedCell = {
+            location: selectedCell.location,
+            takenEnemy: null
+        };
 
         let turnType = this.activeCell.availableForMove.find(el => pointsEqual(el.location, selectedCell.location)).type;
 
@@ -357,13 +361,15 @@ class Board {
                 y: selectedCell.location.y - enemyDirection.y
             };
 
-            this.currentTurn.deletedPieces.push({
+            visitedCell.takenEnemy = {
                 location: enemyLocation,
-                type: this.cells[enemyLocation.y][enemyLocation.x].piece
-            });
+                piece: this.cells[enemyLocation.y][enemyLocation.x].piece
+            };
 
             this.cells[enemyLocation.y][enemyLocation.x].piece = null;
         }
+
+        this.currentTurn.visited.push(visitedCell);
 
         this.movePiece(selectedCell);
 
@@ -383,8 +389,11 @@ class Board {
     cancelTurn() {
         if (this.turnCompleted) {
             this.turnCompleted = false;
+
+            let lastVisitedLocation = this.currentTurn.visited[this.currentTurn.visited.length - 1].location;
+
             let startCell = this.findByLocation(this.currentTurn.start);
-            let finishCell = this.findByLocation(this.currentTurn.finish);
+            let finishCell = this.findByLocation(lastVisitedLocation);
 
             if (this.activeCell) {
                 this.endHighlightAvailableCells();
@@ -394,7 +403,11 @@ class Board {
 
             this.movePiece(startCell);
 
-            this.currentTurn.deletedPieces.forEach(piece => this.findByLocation(piece.location).piece = piece.type);
+            this.currentTurn.visited.forEach(visitedCell => {
+                if (visitedCell.takenEnemy) {
+                    this.findByLocation(visitedCell.takenEnemy.location).piece = visitedCell.takenEnemy.piece
+                }
+            });
 
             this.activeCell = startCell;
             this.turnMode = true;
@@ -406,8 +419,8 @@ class Board {
 
             this.currentTurn = {
                 start: null,
-                finish: null,
-                deletedPieces: []
+                visited: [],
+                pieceType: null
             };
         }
     }
@@ -441,8 +454,6 @@ class Board {
     }
 
     toTurnMode(selectedElement) {
-        let selectedCell = this.findById(selectedElement.id);
-
         if (this.activeCell) {
             this.endHighlightAvailableCells();
         }
@@ -559,9 +570,13 @@ function endTurn() {
     if (board.turnMode && board.turnCompleted) {
         board.turnCompleted = false;
 
-        let record = toBoardId(board.currentTurn.start)
-            + (board.currentTurn.deletedPieces.length > 0 ? ":" : "-")
-            + toBoardId(board.activeCell.location);
+        let delimiter = board.currentTurn.visited.find(visitedCell => visitedCell.takenEnemy) ? ":" : "-";
+
+        let record = toBoardId(board.currentTurn.start);
+
+        board.currentTurn.visited.forEach(
+            visitedCell => record += (delimiter + toBoardId(visitedCell.location))
+        );
 
         board.gameRecording.push(record); 
 
@@ -574,7 +589,8 @@ function endTurn() {
 
         board.currentTurn = {
             start: null,
-            deletedPieces: []
+            visited: [],
+            pieceType: null
         }; 
 
         updateTurnInfo(board.isWhiteTurn);
@@ -595,8 +611,18 @@ function clearGameRecord() {
 }
 
 function showPiecesPlacement() {
-    let recordText = document.getElementById("game-record").value;
+    recordText = document.getElementById("game-record").value;
+    let records = recordText.split(/[\s\n:-]/g);
 
-    let records = recordText.split("\\s+");
-    console.log(records);
+    board = new Board();
+
+    for (record of records) {
+        let id = boardLetters.indexOf(record[0]) + (Number(record[1]) - 1).toString();
+        
+        board.handleBoardEvent(document.getElementById(id));
+
+        if (board.turnCompleted) {
+            endTurn();
+        }
+    }
 }
