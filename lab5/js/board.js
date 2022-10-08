@@ -148,7 +148,7 @@ class Board {
 
                 let element = findElementByPoint(location);
                 element.addEventListener("click", () => this.handleBoardEvent(element));
-
+                
                 this.cells[i][j] = {
                     location: location,
                     piece: getPieceByPointDefaultBoard(location),
@@ -320,7 +320,7 @@ class Board {
     handleBoardEvent(selectedElement) {
         let selectedCell = this.findById(selectedElement.id);
 
-        if (this.turnMode && this.activeCell.availableForMove.find(el => pointsEqual(el.location, selectedCell.location))) {
+        if (this.turnMode && this.activeCell?.availableForMove.find(el => pointsEqual(el.location, selectedCell.location))) {
             this.doTurn(selectedCell);
 
             if (this.currentTurn.visited.find(visitedCell => visitedCell.takenEnemy)) {
@@ -611,13 +611,42 @@ function clearGameRecord() {
 }
 
 function showPiecesPlacement() {
-    recordText = document.getElementById("game-record").value;
+    let gameRecordElement = document.getElementById("game-record");
+    let errorTextElement = document.getElementById("record-error");
+
+    let recordText = gameRecordElement.value;
     let records = recordText.split(/[\s\n:-]/g);
 
-    board = new Board();
-
+    board.toDefaultState();
+    
     for (record of records) {
+        if (!record.match(/[a-h][1-8]/g)) {
+            errorTextElement.innerHTML = "Неверный формат записи";
+            showErrorInText(gameRecordElement, record);
+            break;
+        }
+
         let id = boardLetters.indexOf(record[0]) + (Number(record[1]) - 1).toString();
+        let location = idToPoint(id);
+
+        if (!board.inBoard(location.x, location.y)) {
+            errorTextElement.innerHTML = "Неверная координата доски";
+            showErrorInText(gameRecordElement, record);
+            break;
+        }
+
+        if (!board.activeCell && !board.findById(id).piece) {
+            errorTextElement.innerHTML = "На данном ходу выбирается клетка без шашки";
+            showErrorInText(gameRecordElement, record);
+            break;
+        }
+
+        if (board.activeCell?.piece && !board.isEmpty(location.x, location.y)
+                 || !board.activeCell?.availableForMove.find(point => pointsEqual(point.location, location))) {
+            errorTextElement.innerHTML = "Шашка не может сделать ход на данную клетку";
+            showErrorInText(gameRecordElement, record);
+            break;
+        }
         
         board.handleBoardEvent(document.getElementById(id));
 
@@ -625,4 +654,10 @@ function showPiecesPlacement() {
             endTurn();
         }
     }
+}
+
+function showErrorInText(textarea, textWithError) {
+    textarea.selectionStart = textarea.value.indexOf(textWithError);
+    textarea.selectionEnd = textarea.value.indexOf(textWithError) + textWithError.length;
+    textarea.focus();
 }
