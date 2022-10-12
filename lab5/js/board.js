@@ -123,6 +123,7 @@ class Board {
     isWhiteTurn;
     turnCompleted;
     mustAttack;
+    turnCount;
 
     cells = new Array(BOARD_SIZE);
     gameRecording = [];
@@ -137,6 +138,7 @@ class Board {
         this.turnMode = false;
         this.isWhiteTurn = true;
         this.turnCompleted = false;
+        this.turnCount = 0;
         
         for (let i = 0; i < this.cells.length; i++) {
             this.cells[i] = new Array(BOARD_SIZE);
@@ -584,6 +586,7 @@ function endTurn() {
 
         board.toNormalMode(element);
         board.changeTurn();
+        board.turnCount++;
         board.updateAvailable();
         board.updateAllCellsView();
 
@@ -595,12 +598,11 @@ function endTurn() {
 
         updateTurnInfo(board.isWhiteTurn);
 
-        if (board.gameRecording.length === 2) {
-            let text = board.gameRecording[board.gameRecording.length - 2]
-                     + " " + board.gameRecording[board.gameRecording.length - 1];
+        let text = board.gameRecording[board.gameRecording.length - 1] + " ";
+        document.getElementById("game-record").value += text;
 
-            document.getElementById("game-record").value += (text + "\n");
-
+        if (board.turnCount % 2 === 0) {
+            document.getElementById("game-record").value += "\n";
             board.gameRecording = [];
         }
     }
