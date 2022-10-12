@@ -79,6 +79,9 @@ const secondExamplePiecesLocations = [
 
 const cells = document.querySelectorAll("td");
 
+const gameRecordElement = document.getElementById("game-record");
+const errorTextElement = document.getElementById("record-error");
+
 function pointToId(point) {
     return point.x.toString() + point.y.toString();
 }
@@ -492,6 +495,9 @@ class Board {
 
     toDefaultState() {
         this.resetActiveCell();
+        this.isWhiteTurn = true;
+        this.turnCompleted = false;
+        this.turnCount = 0;
 
         for (let i = 0; i < BOARD_SIZE; i++) {
             for (let j = 0; j < BOARD_SIZE; j++) {
@@ -613,40 +619,51 @@ function clearGameRecord() {
 }
 
 function showPiecesPlacement() {
-    let gameRecordElement = document.getElementById("game-record");
-    let errorTextElement = document.getElementById("record-error");
+    let recordText = "";
+    recordText = gameRecordElement.value;
 
-    let recordText = gameRecordElement.value;
-    let records = recordText.split(/[\s\n:-]/g);
+    let records = [];
+    let matches = recordText.replace(/[\s\n:-]/g, "").match(/[^a-h1-8]/g);
+    if (matches) {
+        errorTextElement.innerHTML = "Неверный формат записи";
+        for (match of matches) {
+            showErrorLocation(match);
+        }
+    } else {
+        records = recordText.split(/[\s\n:-]/g);
+    }
 
     board.toDefaultState();
     
     for (record of records) {
-        if (!record.match(/[a-h][1-8]/g)) {
-            errorTextElement.innerHTML = "Неверный формат записи";
-            showErrorInText(gameRecordElement, record);
-            break;
-        }
-
         let id = boardLetters.indexOf(record[0]) + (Number(record[1]) - 1).toString();
-        let location = idToPoint(id);
+        let selectedCell = board.findById(id);
 
-        if (!board.inBoard(location.x, location.y)) {
-            errorTextElement.innerHTML = "Неверная координата доски";
-            showErrorInText(gameRecordElement, record);
+        if (!record.match(/[a-h]\?[1-8]\?/g)) {
+            errorTextElement.innerHTML = "Неверный формат записи координаты";
+            board.toDefaultState();
+            showErrorLocation(record);
             break;
         }
 
-        if (!board.activeCell && !board.findById(id).piece) {
-            errorTextElement.innerHTML = "На данном ходу выбирается клетка без шашки";
-            showErrorInText(gameRecordElement, record);
+        if (!board.activeCell && !selectedCell.piece) {
+            errorTextElement.innerHTML = "На данной клетке нет шашки";
+            board.toDefaultState();
+            showErrorLocation(record);
             break;
         }
 
-        if (board.activeCell?.piece && !board.isEmpty(location.x, location.y)
-                 || !board.activeCell?.availableForMove.find(point => pointsEqual(point.location, location))) {
-            errorTextElement.innerHTML = "Шашка не может сделать ход на данную клетку";
-            showErrorInText(gameRecordElement, record);
+        if (board.isWhiteTurn && board.isBlackPiece(selectedCell) || !board.isWhiteTurn && board.isWhitePiece(selectedCell)) {
+            errorTextElement.innerHTML = "Данной шашке можно походить только после хода соперника";
+            board.toDefaultState();
+            showErrorLocation(record);
+            break;
+        }
+
+        if (board.activeCell && !board.activeCell.availableForMove.find(el => pointsEqual(el.location, selectedCell.location))) {
+            errorTextElement.innerHTML = "Шашка не может походить сюда";
+            board.toDefaultState();
+            showErrorLocation(record);
             break;
         }
         
@@ -658,8 +675,8 @@ function showPiecesPlacement() {
     }
 }
 
-function showErrorInText(textarea, textWithError) {
-    textarea.selectionStart = textarea.value.indexOf(textWithError);
-    textarea.selectionEnd = textarea.value.indexOf(textWithError) + textWithError.length;
-    textarea.focus();
+function showErrorLocation(textWithError) {
+    gameRecordElement.selectionStart = gameRecordElement.value.indexOf(textWithError);
+    gameRecordElement.selectionEnd = gameRecordElement.value.indexOf(textWithError) + textWithError.length;
+    gameRecordElement.focus();
 }
