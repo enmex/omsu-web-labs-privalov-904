@@ -127,7 +127,7 @@ class Board {
     turnCompleted;
     mustAttack;
     turnCount;
-
+    
     cells = new Array(BOARD_SIZE);
     gameRecording = [];
     activeCell = Cell | null;
@@ -163,9 +163,10 @@ class Board {
         }
 
         this.updateAvailable();
+
+
         this.updateAllCellsView();
         updateTurnInfo(this.isWhiteTurn);
-
         clearGameRecord();
     }
 
@@ -574,7 +575,7 @@ function toBoardId(point) {
     return boardLetters[point.x] + (point.y + 1);
 }
 
-function endTurn() {
+function endTurn(recordsVisible) {
     if (board.turnMode && board.turnCompleted) {
         board.turnCompleted = false;
 
@@ -604,14 +605,16 @@ function endTurn() {
 
         updateTurnInfo(board.isWhiteTurn);
 
-        let text = board.gameRecording[board.gameRecording.length - 1] + " ";
-        document.getElementById("game-record").value += text;
+        if (recordsVisible) {
+            let text = board.gameRecording[board.gameRecording.length - 1] + " ";
+            gameRecordElement.value += text;
 
-        if (board.turnCount % 2 === 0) {
-            document.getElementById("game-record").value += "\n";
-            board.gameRecording = [];
+            if (board.turnCount % 2 === 0) {
+                gameRecordElement.value += "\n";
+                board.gameRecording = [];
+            }
         }
-    }
+    }   
 }
 
 function clearGameRecord() {
@@ -632,16 +635,15 @@ function showPiecesPlacement() {
 
         return;
     }
-    
-    records = recordText.split(/[\s\n:-]/g);
+
+    records = recordText.split(/[\s\n:-]/g).filter(el => el !== "");
 
     board.toDefaultState();
-    
     for (record of records) {
         let id = boardLetters.indexOf(record[0]) + (Number(record[1]) - 1).toString();
         let selectedCell = board.findById(id);
 
-        if (!record.match(/[a-h]\?[1-8]\?/g)) {
+        if (record.length != 2 || record.length == 2 && (record[0].match(/[^a-h]/g) || record[1].match(/[^1-8]/g))) {
             errorTextElement.innerHTML = "Неверный формат записи координаты";
             board.toDefaultState();
             showErrorLocation(record);
@@ -668,11 +670,11 @@ function showPiecesPlacement() {
             showErrorLocation(record);
             break;
         }
-        
+
         board.handleBoardEvent(document.getElementById(id));
 
         if (board.turnCompleted) {
-            endTurn();
+            endTurn(false);
         }
     }
 }
