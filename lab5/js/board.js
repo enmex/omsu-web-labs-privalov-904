@@ -629,9 +629,11 @@ function showPiecesPlacement() {
         for (match of matches) {
             showErrorLocation(match);
         }
-    } else {
-        records = recordText.split(/[\s\n:-]/g);
+
+        return;
     }
+    
+    records = recordText.split(/[\s\n:-]/g);
 
     board.toDefaultState();
     
